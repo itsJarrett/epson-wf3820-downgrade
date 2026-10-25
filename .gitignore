@@ -1,0 +1,5 @@
+*.exe
+*.efu
+*.rcx
+*.zip
+__pycache__/
