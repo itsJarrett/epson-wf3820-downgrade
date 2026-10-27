@@ -56,7 +56,7 @@ it.
 | Version | Date | File | SHA-256 |
 |---|---|---|---|
 | SI13LC | 2021-12 | [`FWCJ07TL_SI13LC.exe`](https://ftp.epson.com/drivers/FWCJ07TL_SI13LC.exe) (Epson) | `4dcc4efb7e494fee888cc090c8c120e10a2bf8cdc8cd8bb9199c9a026a19775d` |
-| SI09K9 | 2020-09 | [archive.org mirror](https://archive.org/details/epson-printer-firmware-archive) (`by-model/WF-3820/Windows/`) | `a84de3432101c20808dc5f28c4543f7e2e66a623cb9b9948e8ba211d0679ceb8` (`.exe` inside the zip) |
+| SI09K9 | 2020-09 | not on Epson's current servers — locate a copy and **verify the SHA-256** | `a84de3432101c20808dc5f28c4543f7e2e66a623cb9b9948e8ba211d0679ceb8` (`.exe` inside the zip) |
 
 Which versions accept which third-party cartridges depends on the cartridge chip. On the
 tested unit, SI13LC read the remanufactured black cartridge normally. Reports elsewhere
@@ -115,5 +115,11 @@ Protocol knowledge builds on [abrasive/epson-reversing](https://github.com/abras
 This repository contains no code from it and no Epson software. All code here is an independent
 implementation for interoperability with a device you own. "Epson" and "WorkForce" are trademarks of
 Seiko Epson Corporation; this project is not affiliated with Epson.
+
+This tool installs **only official, unmodified, Epson-signed firmware** using Epson's own
+update commands; it changes which version is installed and performs **no circumvention** of
+any technological protection measure, signing check, or cartridge/DRM mechanism. It
+redistributes no firmware (download links and SHA-256 only). Intended for repair and
+interoperability of hardware you own.
 
 License: MIT.
