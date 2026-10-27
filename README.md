@@ -7,9 +7,11 @@ Tested on one WF-3820 (October 2026): the printer went from `04.65.SI22Q6` (July
 to `04.51.SI09K9`, then to `04.52.SI13LC`. Other models that use the same update
 protocol may work, but none have been tested.
 
-> **Status:** the method and findings were verified on hardware with an earlier prototype.
-> `epsonfw.py` is a clean rewrite of that prototype. Its network and extraction paths are
-> tested; its USB path has not yet been run against the printer.
+> **Status:** method and `epsonfw.py` verified on hardware — repeated `info`/`extract`/`flash`
+> cycles over USB on a real WF-3820 (SI22Q6 → SI09K9 → SI13LC and back). `netinfo` (SNMP) tested too.
+> This is an **incremental** tool: USB `.rcx` flashing already exists in
+> [`abrasive/epson-reversing`](https://github.com/abrasive/epson-reversing)'s `epsflasher`; the new
+> bits here are the credit-handling fix, the version-skip behaviour, and a dependency-free rewrite.
 
 > **Use at your own risk.** Flashing firmware can leave a printer unusable. Only use
 > unmodified firmware published by Epson, for your model. This project does not
@@ -34,6 +36,11 @@ On current firmware that combination is unreliable; it never worked on the unit 
   flasher [`abrasive/epson-reversing`](https://github.com/abrasive/epson-reversing)
   (`epsflasher`) asks for 256, so it stalls until the printer times out and reboots.
   Asking for 1–4 at a time fixes it.
+* **The printer skips a same-version write.** If the image's version equals the running
+  version, the printer accepts the transfer but no-ops the write (finishes in ~1 min instead
+  of ~5, and `vi` is unchanged) — it compares the firmware's own version, not the `.rcx`
+  header. To reflash the *same* version, first flash a different version, then flash the one
+  you want (e.g. SI09K9 → SI13LC). Downgrades and upgrades both write; only equal versions skip.
 * **It doesn't work over the network.** `gm 1` is accepted over SNMP (Epson OID
   `1.3.6.1.4.1.1248.1.2.2.44.1.1.2.1`), but the printer then leaves Wi-Fi. Use USB.
 * **SI09K9 broke the scanner on the tested unit.** It caused error `E02 100016` ("Scanner
