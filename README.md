@@ -1,11 +1,13 @@
-# epson-wf3820-downgrade
+# epson-downgrade-on-linux
 
-Install an older **official** Epson firmware on a WorkForce Pro **WF-3820** from
+Install an older **official** Epson firmware on a WorkForce Pro **WF-3820** or **XP-4200** from
 **Linux over USB**, in normal operating mode. You don't need recovery mode, Windows, or a paid key.
 
 Tested on one WF-3820 (October 2026): the printer went from `04.65.SI22Q6` (July 2026)
 to `04.51.SI09K9`, then to `04.52.SI13LC`. Other models that use the same update
 protocol may work, but none have been tested.
+
+Tested on one XP-4200 (November 2026):`06.81.IT18Q3.FY22` → `06.79.IT05P2.FY22`. 
 
 > **Status:** method and `epsonfw.py` verified on hardware — repeated `info`/`extract`/`flash`
 > cycles over USB on a real WF-3820 (SI22Q6 → SI09K9 → SI13LC and back). `netinfo` (SNMP) tested too.
@@ -19,7 +21,7 @@ protocol may work, but none have been tested.
 
 ## Why
 
-From 2022 on, Epson firmware updates for the WF-3820 stopped some third-party and
+From 2022 on, Epson firmware updates for the WF-3820 and XP-4200 stopped some third-party and
 remanufactured cartridges from working. The usual rollback guides need Epson's Windows
 updater and a hidden touch-panel combination that boots the printer into recovery mode.
 On current firmware that combination is unreliable; it never worked on the unit tested here.
@@ -57,6 +59,7 @@ it.
 |---|---|---|---|
 | SI13LC | 2021-12 | [`FWCJ07TL_SI13LC.exe`](https://ftp.epson.com/drivers/FWCJ07TL_SI13LC.exe) (Epson) | `4dcc4efb7e494fee888cc090c8c120e10a2bf8cdc8cd8bb9199c9a026a19775d` |
 | SI09K9 | 2020-09 | not on Epson's current servers — locate a copy and **verify the SHA-256** | `a84de3432101c20808dc5f28c4543f7e2e66a623cb9b9948e8ba211d0679ceb8` (`.exe` inside the zip) |
+| IT05P2 | 2022 | [`FWCK65TL_IT05P2.exe`](https://ftp.epson.com/drivers/FWCK65TL_IT05P2.exe) (Epson) | '9a3a16d692042a97fe5b19a9262e89918ec2aef54b4a323ff82aa4faf023ce66' |
 
 Which versions accept which third-party cartridges depends on the cartridge chip. On the
 tested unit, SI13LC read the remanufactured black cartridge normally. Reports elsewhere
@@ -64,12 +67,32 @@ conflict.
 
 ## Usage
 
+Clone and download firmware
+
+```sh
+git clone https://github.com/fogScorpion/epson-downgrade-on-linux
+cd epson-wf3820-downgrade/
+curl -O https://ftp.epson.com/drivers/FWCK65TL_IT05P2.exe
+```
+
 Requires Linux with the `usblp` driver (`/dev/usb/lp0`) and Python 3.8+. No other dependencies.
 
 Give your user access to the printer's USB device (or use the `lp` group):
 
+Verify driver is available via lsmod
+
 ```sh
+lsmod | grep usblp
+```
+
+Update udevadm rules
+
+```sh
+# WF-3820:
 echo 'SUBSYSTEM=="usbmisc", ATTRS{idVendor}=="04b8", ATTRS{idProduct}=="117a", MODE="0666"' \
+  | sudo tee /etc/udev/rules.d/99-epson-flash.rules
+# XP-4200:
+echo 'SUBSYSTEM=="usbmisc", ATTRS{idVendor}=="04b8", ATTRS{idProduct}=="11b0", MODE="0666"' \
   | sudo tee /etc/udev/rules.d/99-epson-flash.rules
 sudo udevadm control --reload && sudo udevadm trigger --subsystem-match=usbmisc
 ```
